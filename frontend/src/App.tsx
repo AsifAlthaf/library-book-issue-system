@@ -1,20 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
-import Navbar from './components/Navbar'
+import Login from './components/Login'
+import AdminDashboard from './components/AdminDashboard'
+import UserDashboard from './components/UserDashboard'
+import { useState } from 'react'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [page, setPage] = useState<'login' | 'admin' | 'user'>('login')
+  const [memberId, setMemberId] = useState<number | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+
+  function show(msg: string) {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  function handleLogin(role: 'admin' | 'user', id?: number) {
+    if (role === 'user' && id) {
+      setMemberId(id)
+      setPage('user')
+    } else if (role === 'admin') {
+      setPage('admin')
+    }
+  }
+
+  function handleLogout() {
+    setPage('login')
+    setMemberId(null)
+  }
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <Navbar />
-        </div>
-      </section>
+      {page === 'login' && <Login onLogin={handleLogin} />}
+      {page === 'admin' && <AdminDashboard onLogout={handleLogout} onToast={show} />}
+      {page === 'user' && memberId && <UserDashboard memberId={memberId} onLogout={handleLogout} onToast={show} />}
+      {toast && <div className="toast" role="status">{toast}</div>}
     </>
   )
 }
